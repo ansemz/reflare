@@ -1,3 +1,5 @@
+import { test, expect } from 'vitest';
+
 import useReflare from '../../src';
 
 const request = new Request(
@@ -12,11 +14,11 @@ const request = new Request(
   },
 );
 
-test('firewall.ts -> country pass', async () => {
+test('firewall.ts -> geolocation rules', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'country',
@@ -30,11 +32,11 @@ test('firewall.ts -> country pass', async () => {
   expect(response.status).toBe(200);
 });
 
-test('firewall.ts -> ip block with in', async () => {
+test('firewall.ts -> IP address rules (in)', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'ip',
@@ -45,14 +47,14 @@ test('firewall.ts -> ip block with in', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.status).not.toBe(200);
+  expect(response.status).toBe(500);
 });
 
-test('firewall.ts -> ip block with match', async () => {
+test('firewall.ts -> IP address rules (match)', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'ip',
@@ -63,14 +65,14 @@ test('firewall.ts -> ip block with match', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.status).not.toBe(200);
+  expect(response.status).toBe(500);
 });
 
 test('firewall.ts -> ip block with contain', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'ip',
@@ -81,14 +83,14 @@ test('firewall.ts -> ip block with contain', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.status).not.toBe(200);
+  expect(response.status).toBe(500);
 });
 
-test('firewall.ts -> user-agent block with not contain', async () => {
+test('firewall.ts -> user-agent rules (not contain)', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'user-agent',
@@ -99,14 +101,14 @@ test('firewall.ts -> user-agent block with not contain', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.status).not.toBe(200);
+  expect(response.status).toBe(500);
 });
 
 test('firewall.ts -> invalid operator', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     firewall: [
       {
         field: 'ip',
@@ -117,5 +119,5 @@ test('firewall.ts -> invalid operator', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.status).not.toBe(200);
+  expect(response.status).toBe(500);
 });

@@ -1,3 +1,5 @@
+import { test, expect } from 'vitest';
+
 import useReflare from '../../src';
 
 interface HTTPBinGetResponse {
@@ -6,39 +8,39 @@ interface HTTPBinGetResponse {
 }
 
 const request = new Request(
-  'https://httpbin.org/get',
+  'https://httpbingo.org/get',
   {
     headers: new Headers({
-      origin: 'https://httpbin.org',
+      origin: 'https://httpbingo.org',
       'Access-Control-Request-Method': 'GET',
     }),
     method: 'GET',
   },
 );
 
-test('CORS -> methods', async () => {
+test('cors.ts -> \'access-control-allow-methods\'', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     cors: {
-      origin: ['https://httpbin.org'],
+      origin: ['https://httpbingo.org'],
       methods: ['GET', 'POST'],
     },
   });
 
   const response = await reflare.handle(request);
   expect(response.status).toBe(200);
-  const responseObject = await response.json<HTTPBinGetResponse>();
-  expect(responseObject.headers.Origin).toBe('https://httpbin.org');
-  expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET,POST');
+  const responseObject = await response.json() as HTTPBinGetResponse;
+  expect(responseObject.headers.Origin).toContain('https://httpbingo.org');
+  expect(response.headers.get('access-control-allow-methods')).toBe('GET,POST');
 });
 
-test('CORS -> Max Age', async () => {
+test('cors.ts -> \'access-control-max-age\'', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     cors: {
       origin: true,
       maxAge: 3600,
@@ -49,11 +51,11 @@ test('CORS -> Max Age', async () => {
   expect(response.headers.get('access-control-max-age')).toBe('3600');
 });
 
-test('CORS -> Access-Control-Allow-Credentials', async () => {
+test('cors.ts -> \'access-control-allow-credentials\'', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     cors: {
       origin: true,
       credentials: true,
@@ -61,33 +63,33 @@ test('CORS -> Access-Control-Allow-Credentials', async () => {
   });
 
   const response = await reflare.handle(request);
-  expect(response.headers.has('Access-Control-Allow-Credentials')).toBeTruthy();
+  expect(response.headers.has('access-control-allow-credentials')).toBeTruthy();
 });
 
-test('CORS -> Access-Control-Allow-Origin', async () => {
+test('cors.ts -> \'access-control-allow-origin\'', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     cors: {
       origin: true,
     },
   });
 
   const response = await reflare.handle(request);
-  expect(response.headers.has('Access-Control-Allow-Origin')).toBeTruthy();
+  expect(response.headers.has('access-control-allow-origin')).toBeTruthy();
 });
 
-test('CORS -> Access-Control-Allow-Origin wildcard', async () => {
+test('cors.ts -> \'access-control-allow-origin\'', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: { domain: 'httpbin.org' },
+    upstream: { domain: 'httpbingo.org' },
     cors: {
       origin: '*',
     },
   });
 
   const response = await reflare.handle(request);
-  expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
+  expect(response.headers.get('access-control-allow-origin')).toBe('*');
 });

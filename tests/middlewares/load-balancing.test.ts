@@ -1,14 +1,16 @@
+import { test, expect } from 'vitest';
+
 import useReflare from '../../src';
 import { UpstreamOptions } from '../../types/middlewares';
 
-const upstreamArray: UpstreamOptions[] = [
+const upstream: UpstreamOptions[] = [
   {
     domain: 'javascript.info',
     protocol: 'https',
     weight: 0,
   },
   {
-    domain: 'httpbin.org',
+    domain: 'httpbingo.org',
     protocol: 'https',
     weight: 1,
   },
@@ -35,7 +37,7 @@ test('load-balancing.ts -> ip-hash', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: upstreamArray,
+    upstream,
     loadBalancing: {
       policy: 'ip-hash',
     },
@@ -43,14 +45,14 @@ test('load-balancing.ts -> ip-hash', async () => {
 
   const response = await reflare.handle(request);
   expect(response.status).toBe(200);
-  expect(response.url).toBe('https://httpbin.org/get');
+  expect(response.url).toBe('https://httpbingo.org/get');
 });
 
 test('load-balancing.ts -> weighted random', async () => {
   const reflare = await useReflare();
   reflare.push({
     path: '/*',
-    upstream: upstreamArray,
+    upstream,
     loadBalancing: {
       policy: 'random',
     },
@@ -58,5 +60,5 @@ test('load-balancing.ts -> weighted random', async () => {
 
   const response = await reflare.handle(request);
   expect(response.status).toBe(200);
-  expect(response.url).toBe('https://httpbin.org/get');
+  expect(response.url).toBe('https://httpbingo.org/get');
 });
